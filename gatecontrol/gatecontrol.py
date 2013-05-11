@@ -28,7 +28,7 @@ import utils
 
 
 app = Flask('gatecontrol')
-logging.config.fileConfig('log.conf')
+logging.config.fileConfig('.gatecontrol_logging')
 LOG = app.logger
 
 config = utils.get_config_from_file()
@@ -91,5 +91,5 @@ def sms_reply(message):
     return str(r)
 
 
-def start()
+def start():
     app.run()
