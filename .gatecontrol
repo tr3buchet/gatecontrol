@@ -2,6 +2,7 @@
 john = 155555555555
 bob = 16666666666
 jill = 17777777777
+joe = 12222222222
 
 [passphrases]
 1 = asdf
@@ -11,4 +12,6 @@ jill = 17777777777
 
 [misc]
 forwarding_number = 14444444444
-access_duration = 5
+access_duration = 300
+sms_fail_msg = GRILL ME A CHEESE!
+gate_dial_code = 346

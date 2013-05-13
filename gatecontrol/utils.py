@@ -29,7 +29,16 @@ def get_config_from_file():
     config.read(possible_configs)
     if len(config.sections()) < 1:
         return None
-    return config
+
+    config_dict = {
+        'trusted_numbers': dict((v, k)
+                                for (k, v) in config.items('trusted_numbers')),
+        'passphrases': [v.lower() for (k, v) in config.items('passphrases')],
+        'forwarding_number': config.get('misc', 'forwarding_number'),
+        'access_duration': config.getint('misc', 'access_duration'),
+        'sms_fail_msg': config.get('misc', 'sms_fail_msg'),
+        'gate_dial_code': config.get('misc', 'gate_dial_code')}
+    return config_dict
 
 
 def now_plus_n(n):

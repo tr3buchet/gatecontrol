@@ -18,7 +18,6 @@
 import logging.config
 
 from flask import Flask
-from flask import render_template
 from flask import url_for
 from flask import request
 
@@ -32,8 +31,7 @@ logging.config.fileConfig('.gatecontrol_logging')
 LOG = app.logger
 
 config = utils.get_config_from_file()
-trusted = dict((v, k) for (k, v) in config.items('trusted_numbers'))
-passphrases = [v.lower() for (k, v) in config.items('passphrases')]
+print config
 
 
 @app.route('/call', methods=['get'])
@@ -48,33 +46,38 @@ def handle_sms():
     # remove the + off the front of number (+15555555555)
     number = request.form['From'][1:]
     msg = request.form['Body']
-    LOG.info('%s texted |%s|', number, msg)
+    LOG.info('|%s| texted |%s|', number, msg)
 
-    if number in trusted:
-        LOG.info('|%s| belongs to trusted |%s|', number, trusted['number'])
-        prefix = 'hey %s,' % trusted['number']
-        prime_gate(prefix)
+    if number in config['trusted_numbers']:
+        LOG.info('|%s| is |%s|', number,
+                 config['trusted_numbers'][number])
+        prefix = 'hey %s, press %s to enter.' % \
+                 (config['trusted_numbers'][number], config['gate_dial_code'])
+        return prime_gate(prefix)
 
-    if msg.lower() in passphrases:
-        LOG.info('|%s| texted passphrase |%s|', number, msg)
-        prefix = 'the passphrase of kings!!'
-        prime_gate(prefix)
-    return render_template('test.xml')
+    if msg.lower() in config['passphrases']:
+        LOG.info('passphrase |%s| accepted', msg)
+        prefix = 'the passphrase of kings!! press %s to enter.' % \
+                  config['gate_dial_code']
+        return prime_gate(prefix)
 
-
-def forward_call():
-    r = twiml.Response()
-    r.say('one moment please')
-    r.dial(config.forwarding_number, timeout=20)
-    return str(r)
+    LOG.info('sending fail reply to |%s|', number)
+    return sms_reply(config['sms_fail_msg'])
 
 
 def prime_gate(prefix):
     #TODO prime gate to open
     #TODO make n configurable
-    now, closing_time = utils.now_plus_n(300)
+    now, closing_time = utils.now_plus_n(config['access_duration'])
     reply = '%s gate is primed until %s'
     return sms_reply(reply % (prefix, utils.time_str(closing_time)))
+
+
+def forward_call():
+    r = twiml.Response()
+    r.say('one moment please')
+    r.dial(config['forwarding_number'], timeout=20)
+    return str(r)
 
 
 def open_gate():
@@ -86,10 +89,11 @@ def open_gate():
 
 
 def sms_reply(message):
+    LOG.info('sending reply: |%s|', message)
     r = twiml.Response()
     r.sms(message)
     return str(r)
 
 
 def start():
-    app.run()
+    app.run(host='0.0.0.0')
