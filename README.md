@@ -1,13 +1,12 @@
 ## install
 ```
 git clone https://github.com/tr3buchet/gatecontrol.git
-# make a venv as you wish
+# make/activate a venv if you wish
 cd gatecontrol
 python setup.py install
-mv .gatecontrol ~
-mv .gatecontrol_logging ~
-# edit .gatecontrol to your situation
+mkdir -p ~/.gatecontrol && mv .gatecontrol ~/.gatecontrol
+# edit ~/.gatecontrol/gatecontrol for your setup
 ```
 
 ## run
-`python gatecontrol.py`
+run `gatecontrol` or `gatecontrol &` from the commandline

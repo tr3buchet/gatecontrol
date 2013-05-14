@@ -24,7 +24,8 @@ brad = 4173774e-15e8-4f87-8212-747f3bdddc23
 
 [misc]
 forwarding_number = 14444444444
-access_duration = 300
+# access duration is in seconds
+access_duration = 600
 sms_fail_msg = GRILL ME A CHEESE!
 gate_dial_code = 999
 gate_number = 19999999999

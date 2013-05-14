@@ -15,25 +15,25 @@
 #   limitations under the License.
 #
 
-import logging.config
-import os
+import logging
+#import os
 
 from flask import Flask
 from flask import url_for
 from flask import request
+from flask import abort
 
 from twilio import  twiml
 
+import logging_utils
 import utils
 
 
 app = Flask('gatecontrol')
-logging.config.fileConfig([os.path.expanduser('~/.gatecontrol_logging'),
-                           '.gatecontrol_logging'])
+logging_utils.setup_logging()
 LOG = app.logger
 
 config = utils.get_config_from_file()
-print config
 last_prime = None
 
 
@@ -77,13 +77,15 @@ def handle_sms():
 
 @app.route('/trusted/<useruuid>', methods=['get'])
 def handle_uuid_url(useruuid):
-    LOG.info('uuid |%s| was requested', useruuid)
+    LOG.debug('i am the man')
     name = config['trusted_uuids'].get(useruuid, None)
     if name:
         LOG.info('|%s|\'s uuid |%s| was requested', name, useruuid)
         prefix = 'hey %s, press %s to enter.' % (name,
                                                  config['gate_dial_code'])
         return prime_gate(prefix, sms=False)
+    LOG.info('unrecognized uuid |%s| was requested', useruuid)
+    abort(401)
 
 
 def prime_gate(prefix, sms=True):
