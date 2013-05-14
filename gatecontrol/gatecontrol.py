@@ -135,7 +135,7 @@ def send_email(name):
         msg['From'] = 'gatecontrol to major tom'
         msg['To'] = config['email_address']
         msg['Subject'] = '%s is at the gate!!'
-        p = Popen([config['sendmail_location'], '-t'], stdin=PIPE)
+        p = Popen([config['sendmail_command'], '-t'], stdin=PIPE)
         p.communicate(msg.as_string())
         LOG.debug('sent |%s|%s|%s|%s|' % (msg['From'], msg['To'],
                                           msg['Subject'], 'get pants on!'))
