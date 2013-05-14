@@ -19,12 +19,13 @@ import ConfigParser
 from datetime import datetime
 from datetime import timedelta
 import logging
+import os
 
 LOG = logging.getLogger(__name__)
 
 
 def get_config_from_file():
-    possible_configs = ['~/.gatecontrol']
+    possible_configs = [os.path.expanduser('~/.gatecontrol'), '.gatecontrol']
     config = ConfigParser.RawConfigParser()
     config.read(possible_configs)
     if len(config.sections()) < 1:

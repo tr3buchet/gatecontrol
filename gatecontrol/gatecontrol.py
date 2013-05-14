@@ -16,6 +16,7 @@
 #
 
 import logging.config
+import os
 
 from flask import Flask
 from flask import url_for
@@ -27,10 +28,12 @@ import utils
 
 
 app = Flask('gatecontrol')
-logging.config.fileConfig('.gatecontrol_logging')
+logging.config.fileConfig([os.path.expanduser('~/.gatecontrol_logging'),
+                           '.gatecontrol_logging'])
 LOG = app.logger
 
 config = utils.get_config_from_file()
+print config
 last_prime = None
 
 
@@ -72,9 +75,9 @@ def handle_sms():
     return sms_reply(config['sms_fail_msg'])
 
 
-@app.route('/<useruuid>', methods=['get'])
+@app.route('/trusted/<useruuid>', methods=['get'])
 def handle_uuid_url(useruuid):
-    LOG.info('uuid |%s| was requested')
+    LOG.info('uuid |%s| was requested', useruuid)
     name = config['trusted_uuids'].get(useruuid, None)
     if name:
         LOG.info('|%s|\'s uuid |%s| was requested', name, useruuid)
