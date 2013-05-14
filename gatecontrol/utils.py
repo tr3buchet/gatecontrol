@@ -24,7 +24,7 @@ LOG = logging.getLogger(__name__)
 
 
 def get_config_from_file():
-    possible_configs = ['.gatecontrol']
+    possible_configs = ['~/.gatecontrol']
     config = ConfigParser.RawConfigParser()
     config.read(possible_configs)
     if len(config.sections()) < 1:
