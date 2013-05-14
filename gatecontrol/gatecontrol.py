@@ -15,15 +15,13 @@
 #   limitations under the License.
 #
 
-import logging
-#import os
-
 from flask import Flask
 from flask import url_for
 from flask import request
 from flask import abort
+from flask import render_template
 
-from twilio import  twiml
+from twilio import twiml
 
 import logging_utils
 import utils
@@ -68,7 +66,7 @@ def handle_sms():
     if msg.lower() in config['passphrases']:
         LOG.info('passphrase |%s| accepted', msg)
         prefix = 'the passphrase of kings!! press %s to enter.' % \
-                  config['gate_dial_code']
+                 config['gate_dial_code']
         return prime_gate(prefix)
 
     LOG.info('sending fail reply to |%s|', number)
@@ -77,7 +75,6 @@ def handle_sms():
 
 @app.route('/trusted/<useruuid>', methods=['get'])
 def handle_uuid_url(useruuid):
-    LOG.debug('i am the man')
     name = config['trusted_uuids'].get(useruuid, None)
     if name:
         LOG.info('|%s|\'s uuid |%s| was requested', name, useruuid)
@@ -97,7 +94,7 @@ def prime_gate(prefix, sms=True):
                                             utils.time_str(closing_time))
     if sms:
         return sms_reply(reply)
-    return reply
+    return render_template('text.html', message=reply)
 
 
 def forward_call(number):
