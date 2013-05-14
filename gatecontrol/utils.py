@@ -33,10 +33,13 @@ def get_config_from_file():
     config_dict = {
         'trusted_numbers': dict((v, k)
                                 for (k, v) in config.items('trusted_numbers')),
+        'trusted_uuids': dict((v, k)
+                              for (k, v) in config.items('trusted_uuids')),
         'passphrases': [v.lower() for (k, v) in config.items('passphrases')],
         'forwarding_number': config.get('misc', 'forwarding_number'),
         'access_duration': config.getint('misc', 'access_duration'),
         'sms_fail_msg': config.get('misc', 'sms_fail_msg'),
+        'gate_number': config.get('misc', 'gate_number'),
         'gate_dial_code': config.get('misc', 'gate_dial_code')}
     return config_dict
 
@@ -49,3 +52,11 @@ def now_plus_n(n):
 
 def time_str(dt):
     return dt.strftime('%H:%M:%S')
+
+
+def still_primed(primed_at, n):
+    if primed_at is None:
+        return False
+    now = datetime.now()
+    if now <= primed_at + timedelta(0, n):
+        return True

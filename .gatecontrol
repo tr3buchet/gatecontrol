@@ -4,6 +4,18 @@ bob = 16666666666
 jill = 17777777777
 joe = 12222222222
 
+[trusted_uuids]
+john = 2dc96f6d-47ed-42e3-a3eb-f950aa0a25f9
+bob = 923ee76c-06d7-4159-9534-d03e9d4805be
+jill = f31389da-a98b-447d-a4fa-1bdcf2dbc7fe
+joe = f702be2f-6877-40ca-b777-7919487b33c9
+sally = c80ac453-5112-417d-96e5-95f93b005a95
+sue = 35e33a47-e092-40a1-89a5-348e493d0a42
+brad = 4173774e-15e8-4f87-8212-747f3bdddc23
+# generate more UUIDS with
+# import uuid
+# uuid.uuid4()
+
 [passphrases]
 1 = asdf
 2 = dSa
@@ -14,4 +26,5 @@ joe = 12222222222
 forwarding_number = 14444444444
 access_duration = 300
 sms_fail_msg = GRILL ME A CHEESE!
-gate_dial_code = 346
+gate_dial_code = 999
+gate_number = 19999999999

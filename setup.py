@@ -25,7 +25,7 @@ setup(
     description='flask/twilio powered gate control app',
     long_description=open('README.md').read(),
     install_requires=['flask', 'twilio'],
-    classifiers=['Development Status :: 2 - Pre-Alpha',
+    classifiers=['Development Status :: 3 - Alpha',
                  'License :: OSI Approved :: Apache Software License',
                  'Programming Language :: Python'],
     keywords='gate control opener keeper twilio flask',

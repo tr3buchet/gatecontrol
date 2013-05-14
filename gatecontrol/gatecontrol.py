@@ -31,14 +31,21 @@ logging.config.fileConfig('.gatecontrol_logging')
 LOG = app.logger
 
 config = utils.get_config_from_file()
-print config
+last_prime = None
 
 
 @app.route('/call', methods=['get'])
 def handle_call():
-    LOG.info('time for hello')
-    LOG.debug('woohoo!')
-    return 'Hello World!'
+    number = request.args.get('From')[1:]
+    LOG.info('received call from |%s|', number)
+    if number == config['gate_number']:
+        LOG.info('call is from gate')
+        if utils.still_primed(last_prime, config['access_duration']):
+            LOG.info('gate is primed')
+            return open_gate()
+    LOG.info('call not from gate, or not primed, forwarding to |%s|',
+             config['forwarding_number'])
+    return forward_call(config['forwarding_number'])
 
 
 @app.route('/sms', methods=['post'])
@@ -65,22 +72,39 @@ def handle_sms():
     return sms_reply(config['sms_fail_msg'])
 
 
-def prime_gate(prefix):
-    #TODO prime gate to open
-    #TODO make n configurable
+@app.route('/<useruuid>', methods=['get'])
+def handle_uuid_url(useruuid):
+    LOG.info('uuid |%s| was requested')
+    name = config['trusted_uuids'].get(useruuid, None)
+    if name:
+        LOG.info('|%s|\'s uuid |%s| was requested', name, useruuid)
+        prefix = 'hey %s, press %s to enter.' % (name,
+                                                 config['gate_dial_code'])
+        return prime_gate(prefix, sms=False)
+
+
+def prime_gate(prefix, sms=True):
+    global last_prime
     now, closing_time = utils.now_plus_n(config['access_duration'])
-    reply = '%s gate is primed until %s'
-    return sms_reply(reply % (prefix, utils.time_str(closing_time)))
+    last_prime = now
+    LOG.info('primed the gate at |%s|', utils.time_str(now))
+    reply = '%s gate is primed until %s' % (prefix,
+                                            utils.time_str(closing_time))
+    if sms:
+        return sms_reply(reply)
+    return reply
 
 
-def forward_call():
+def forward_call(number):
     r = twiml.Response()
-    r.say('one moment please')
-    r.dial(config['forwarding_number'], timeout=20)
+    r.say('one moment please, honkey')
+    r.dial(number, timeout=20)
     return str(r)
 
 
 def open_gate():
+    global last_prime
+    last_prime = None
     LOG.warn('opening gate!')
     r = twiml.Response()
     r.say('hold on to your butts')
