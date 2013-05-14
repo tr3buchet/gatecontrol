@@ -95,7 +95,8 @@ def prime_gate(prefix, name, sms=True):
     now, closing_time = utils.now_plus_n(config['access_duration'])
     last_prime = now
     last_primer = name
-    LOG.info('primed the gate at |%s|', utils.time_str(now))
+    LOG.info('primed the gate at |%s| until |%s', utils.time_str(now),
+             utils.time_str(closing_time))
     reply = '%s gate is primed until %s' % (prefix,
                                             utils.time_str(closing_time))
     if sms:
