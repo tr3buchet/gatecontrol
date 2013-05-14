@@ -15,6 +15,9 @@
 #   limitations under the License.
 #
 
+from email.mime.text import MIMEText
+from subprocess import Popen, PIPE
+
 from flask import Flask
 from flask import url_for
 from flask import request
@@ -33,6 +36,7 @@ LOG = app.logger
 
 config = utils.get_config_from_file()
 last_prime = None
+last_primer = None
 
 
 @app.route('/call', methods=['get'])
@@ -57,17 +61,17 @@ def handle_sms():
     LOG.info('|%s| texted |%s|', number, msg)
 
     if number in config['trusted_numbers']:
-        LOG.info('|%s| is |%s|', number,
-                 config['trusted_numbers'][number])
-        prefix = 'hey %s, press %s to enter.' % \
-                 (config['trusted_numbers'][number], config['gate_dial_code'])
-        return prime_gate(prefix)
+        name = config['trusted_numbers'][number]
+        LOG.info('|%s| is |%s|', number, name)
+        prefix = 'hey %s, press %s to enter.' % (name,
+                                                 config['gate_dial_code'])
+        return prime_gate(prefix, name)
 
     if msg.lower() in config['passphrases']:
         LOG.info('passphrase |%s| accepted', msg)
         prefix = 'the passphrase of kings!! press %s to enter.' % \
                  config['gate_dial_code']
-        return prime_gate(prefix)
+        return prime_gate(prefix, 'passphrase |%s| user' % msg)
 
     LOG.info('sending fail reply to |%s|', number)
     return sms_reply(config['sms_fail_msg'])
@@ -80,15 +84,17 @@ def handle_uuid_url(useruuid):
         LOG.info('|%s|\'s uuid |%s| was requested', name, useruuid)
         prefix = 'hey %s, press %s to enter.' % (name,
                                                  config['gate_dial_code'])
-        return prime_gate(prefix, sms=False)
+        return prime_gate(prefix, name, sms=False)
     LOG.info('unrecognized uuid |%s| was requested', useruuid)
     abort(401)
 
 
-def prime_gate(prefix, sms=True):
+def prime_gate(prefix, name, sms=True):
     global last_prime
+    global last_primer
     now, closing_time = utils.now_plus_n(config['access_duration'])
     last_prime = now
+    last_primer = name
     LOG.info('primed the gate at |%s|', utils.time_str(now))
     reply = '%s gate is primed until %s' % (prefix,
                                             utils.time_str(closing_time))
@@ -111,6 +117,7 @@ def open_gate():
     r = twiml.Response()
     r.say('hold on to your butts')
     r.play(url_for('static', filename='9.wav'), loop=10)
+    send_email(last_primer)
     return str(r)
 
 
@@ -119,6 +126,19 @@ def sms_reply(message):
     r = twiml.Response()
     r.sms(message)
     return str(r)
+
+
+def send_email(name):
+    if config['sendmail']:
+        # send mail
+        msg = MIMEText('get pants on!')
+        msg['From'] = 'gatecontrol to major tom'
+        msg['To'] = config['email_address']
+        msg['Subject'] = '%s is at the gate!!'
+        p = Popen([config['sendmail_location'], '-t'], stdin=PIPE)
+        p.communicate(msg.as_string())
+        LOG.debug('sent |%s|%s|%s|%s|' % (msg['From'], msg['To'],
+                                          msg['Subject'], 'get pants on!'))
 
 
 def start():

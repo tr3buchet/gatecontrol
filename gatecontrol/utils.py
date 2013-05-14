@@ -41,7 +41,10 @@ def get_config_from_file():
         'access_duration': config.getint('misc', 'access_duration'),
         'sms_fail_msg': config.get('misc', 'sms_fail_msg'),
         'gate_number': config.get('misc', 'gate_number'),
-        'gate_dial_code': config.get('misc', 'gate_dial_code')}
+        'gate_dial_code': config.get('misc', 'gate_dial_code'),
+        'sendmail': config.getboolean('misc', 'sendmail'),
+        'sendmail_command': config.get('misc', 'sendmail_command'),
+        'email_address': config.get('misc', 'email_address')}
     return config_dict
 
 
