@@ -21,13 +21,14 @@ import os
 try:
     from logging.config import dictConfig
 except ImportError:
-    from dictconfig import dictConfig
+    from dictconfig import dictConfig  # noqa
 
 
 def ensure_directory(name):
     directory = os.path.dirname(name)
     if not os.path.exists(directory):
         os.makedirs(directory)
+
 
 def setup_logging():
     expand = os.path.expanduser
