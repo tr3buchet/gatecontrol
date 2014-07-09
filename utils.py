@@ -58,9 +58,15 @@ def time_str(dt):
     return dt.strftime('%H:%M:%S')
 
 
-def still_primed(primed_at, n):
-    if primed_at is None:
-        return False
-    now = datetime.now()
-    if now <= primed_at + timedelta(0, n):
-        return True
+def check_primes(primes):
+    return dict((k, v) for k, v in primes if not expired(v))
+
+
+def prime_gate(primes, name, duration):
+    now, expire_time = now_plus_n(duration)
+    primes[name] = expire_time
+    return primes
+
+
+def expired(dt):
+    return datetime.now() > dt
